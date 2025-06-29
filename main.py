@@ -74,16 +74,21 @@ def compare_mod_strings(key: str, input_str: str) -> bool:
     return key_counts == input_counts
 
 print("Please input the number of mods: (0 for random)")
-k = int(input())
+mods = int(input())
+n = 0
+k = 0
 print("-------------------")
 while(True):
+    n += 1
     # os.system('cls')
-    a = get_random_mod_combination(k)
-    print(a[1])
+    a = get_random_mod_combination(mods)
+    print(f"[{n}] {a[1]}")
     print("Please input the mod string:")
     b = input()
     if(compare_mod_strings(a[0], b)):
-        print("Correct!")
+        k += 1
+        print(f"Correct! {k} combo")
     else:
+        k = 0
         print(f"NO! The answer is: {a[0]}")
     print("-------------------")

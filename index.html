@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zenith Carder</title>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #gameArea {
+            display: none;
+            margin-top: 20px;
+        }
+        .player-area {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .character {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-width: 150px;
+        }
+        .hand {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            min-height: 100px;
+        }
+        .card {
+            width: 60px;
+            height: 90px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: white;
+        }
+        .card:hover {
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        .special-card {
+            background-color: #f0f0f0;
+        }
+        .health-card { background-color: #ffdddd; }
+        .stamina-card { background-color: #ddffdd; }
+        .swap-card { background-color: #ddddff; }
+        .reselect-card { background-color: #ffffdd; }
+        #timer {
+            font-size: 24px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        #actions {
+            margin-top: 20px;
+        }
+        button {
+            padding: 8px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        #characterSelection {
+            display: none;
+            margin-top: 20px;
+        }
+        #copyHostIdBtn {
+            margin-left: 10px;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Zenith Carder</h1>
+    <div id="connectionArea">
+        <div>
+            <button id="hostBtn">Host Game</button>
+            <div id="hostIdDisplay" style="display: none; margin-top: 10px;">
+                <span id="hostIdText">Your Host ID: </span>
+                <button id="copyHostIdBtn">Copy ID</button>
+            </div>
+            <input type="text" id="peerIdInput" placeholder="Enter Host's ID">
+            <button id="connectBtn">Connect</button>
+        </div>
+        <input type="text" id="nameInput" placeholder="Your name here...">
+        <div id="status">Status: Disconnected</div>
+    </div>
+
+    <div id="characterSelection">
+        <h2>Character Selection</h2>
+        <div id="playerCharacters" class="player-area">Waiting for other player...</div>
+        <div id="availableCharacters"></div>
+        <button id="confirmCharactersBtn">Confirm Selection</button>
+    </div>
+
+    <div id="gameArea">
+        <div id="timer">60</div>
+        
+        <div id="opponentArea" class="player-area">
+            <h2>Opponent</h2>
+            <div id="opponentCharacters"></div>
+        </div>
+        
+        <div id="playerArea" class="player-area">
+            <h2>You</h2>
+            <div id="playerCharacters2"></div>
+            <h3>Your Hand</h3>
+            <div id="playerHand" class="hand"></div>
+        </div>
+        
+        <div id="actions">
+            <button id="endTurnBtn">End Turn</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
