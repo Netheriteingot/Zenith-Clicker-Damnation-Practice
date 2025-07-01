@@ -19,6 +19,8 @@ const hostIdDisplay = document.getElementById('hostIdDisplay');
 const hostIdText = document.getElementById('hostIdText');
 const copyHostIdBtn = document.getElementById('copyHostIdBtn');
 
+let selectedCharacterIndex = null;
+
 // Host Game (Player 1)
 document.getElementById('hostBtn').addEventListener('click', () => {
     console.log("Hosting...")
@@ -316,15 +318,22 @@ function updateGameState(state) {
     playerCharsDiv.innerHTML = '<h3>Your Characters</h3>';
 
     if (state.players[player]?.characters) {
-        state.players[player].characters.forEach(char => {
+        state.players[player].characters.forEach((char, idx) => {
             const charDiv = document.createElement('div');
             charDiv.className = 'character';
             charDiv.innerHTML = `
                 <strong>${char.name}</strong><br>
                 Health: ${char.health}<br>
                 Card Draw: ${char.cardDraw}<br>
-                Stamina: ${char.stamina}/${char.staminaCap}
+                Stamina: ${char.stamina !== undefined ? char.stamina : 0}/${char.staminaCap !== undefined ? char.staminaCap : 0}
             `;
+            charDiv.addEventListener('click', () => {
+                selectedCharacterIndex = { side: "player", idx: idx };
+                updateGameState(state);
+            });
+            if (selectedCharacterIndex && selectedCharacterIndex.side === "player" && selectedCharacterIndex.idx === idx) {
+                charDiv.style.border = "2px solid green";
+            }
             playerCharsDiv.appendChild(charDiv);
         });
     }
@@ -334,7 +343,7 @@ function updateGameState(state) {
     opponentCharsDiv.innerHTML = '<h3>Opponent</h3>';
 
     if (state.players[opponent]?.characters) {
-        state.players[opponent].characters.forEach(char => {
+        state.players[opponent].characters.forEach((char, idx) => {
             const charDiv = document.createElement('div');
             charDiv.className = 'character';
             charDiv.innerHTML = `
@@ -342,6 +351,13 @@ function updateGameState(state) {
                 Health: ${char.health}<br>
                 Card Draw: ${char.cardDraw}
             `;
+            charDiv.addEventListener('click', () => {
+                selectedCharacterIndex = { side: "opponent", idx: idx };
+                updateGameState(state);
+            });
+            if (selectedCharacterIndex && selectedCharacterIndex.side === "opponent" && selectedCharacterIndex.idx === idx) {
+                charDiv.style.border = "2px solid green";
+            }
             opponentCharsDiv.appendChild(charDiv);
         });
     }
@@ -363,14 +379,20 @@ function updateGameState(state) {
 
 function useCard(card) {
     const player = host === 1 ? 'player1' : 'player2';
-
-    // In a full implementation, this would handle card targeting
-    game.handlUseCard(player, card, {});
+    game.handleUseCard(player, card, selectedCharacterIndex);
+    selectedCharacterIndex = null; // Deselect after use
+    updateGameState(game.getGameState());
 }
 
 function startTurn(timeLimit) {
     let timeLeft = timeLimit / 1000;
     timerDisplay.textContent = timeLeft;
+    endTurnBtn.disabled = false; // Enable button
+
+    // Remove any existing listeners to avoid stacking
+    const newBtn = endTurnBtn.cloneNode(true);
+    endTurnBtn.parentNode.replaceChild(newBtn, endTurnBtn);
+    endTurnBtn = newBtn;
 
     const timer = setInterval(() => {
         timeLeft--;
@@ -384,13 +406,20 @@ function startTurn(timeLimit) {
 
     endTurnBtn.addEventListener('click', () => {
         clearInterval(timer);
-        game.endTurn();
+        endTurn();
     });
 }
 
 function endTurn() {
     timerDisplay.textContent = "Opponent's turn";
     endTurnBtn.disabled = true;
+
+    // Host must call game.endTurn, client must send action to host
+    if (host === 1) {
+        game.endTurn();
+    } else if (game && game.sendAction) {
+        game.sendAction({ type: "end_turn" }, false);
+    }
 }
 
 // Error handling
